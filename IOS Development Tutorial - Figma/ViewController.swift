@@ -16,5 +16,8 @@ class ViewController: UIViewController {
     }
 
 
+    @IBAction func tempButtonTapped(_ sender: UIButton) {
+        performSegue(withIdentifier: "ToWelcomeContoso", sender: nil)
+    }
 }
 
