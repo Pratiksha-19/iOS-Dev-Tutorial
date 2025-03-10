@@ -3,7 +3,6 @@ import UIKit
 class IncidentViewController: UIViewController {
     
     let profileImageView = UIImageView()
-    
     let segmentedControl = UISegmentedControl(items: ["Today", "Incidents"])
     let todayView = UIView()
     let incidentsView = UIView()
@@ -25,7 +24,6 @@ class IncidentViewController: UIViewController {
         profileImageView.isUserInteractionEnabled = true // Enable tap
         let profileTapGesture = UITapGestureRecognizer(target: self, action: #selector(openMenu))
         profileImageView.addGestureRecognizer(profileTapGesture)
-
         view.addSubview(profileImageView)
         
         // Title Label
@@ -33,9 +31,6 @@ class IncidentViewController: UIViewController {
         titleLabel.text = "Contoso"
         titleLabel.font = UIFont.systemFont(ofSize: 26, weight: .bold)
         titleLabel.textColor = UIColor(red: 33/255, green: 33/255, blue: 33/255, alpha: 1.0)
-        let attributedText = NSMutableAttributedString(string: "Contoso")
-        attributedText.addAttribute(.kern, value: 0.33, range: NSRange(location: 0, length: attributedText.length))
-        titleLabel.attributedText = attributedText
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(titleLabel)
         
@@ -68,53 +63,19 @@ class IncidentViewController: UIViewController {
         tabStackView.addArrangedSubview(incidentsLabel)
         
         // Underline View
-        underlineView.backgroundColor = .black
+        underlineView.backgroundColor = UIColor(red: 91/255, green: 95/255, blue: 199/255, alpha: 1.0)
         underlineView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(underlineView)
         
-        // Views for tabs
+        // Add views for tabs
         todayView.translatesAutoresizingMaskIntoConstraints = false
         incidentsView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(todayView)
         view.addSubview(incidentsView)
         
-        // Incident Report Card (inside incidentsView)
-        let cardView = UIView()
-//        cardView.layer.borderColor = UIColor.lightGray.cgColor
-//        cardView.layer.borderWidth = 1
-//        cardView.layer.cornerRadius = 10
-        cardView.translatesAutoresizingMaskIntoConstraints = false
-        incidentsView.addSubview(cardView)
+        setupTodayView()
+        setupIncidentsView()
         
-        let gearImageView = UIImageView()
-        gearImageView.image = UIImage(named: "gearImage") // Ensure the image is added in assets
-        gearImageView.contentMode = .scaleAspectFit
-        gearImageView.translatesAutoresizingMaskIntoConstraints = false
-        cardView.addSubview(gearImageView)
-        
-        let noIncidentsLabel = UILabel()
-        noIncidentsLabel.text = "No incidents reported"
-        noIncidentsLabel.font = UIFont.boldSystemFont(ofSize: 16)
-        noIncidentsLabel.translatesAutoresizingMaskIntoConstraints = false
-        cardView.addSubview(noIncidentsLabel)
-        
-        let subtextLabel = UILabel()
-        subtextLabel.text = "No new incidents reported by you"
-        subtextLabel.font = UIFont.systemFont(ofSize: 14)
-        subtextLabel.textColor = .gray
-        subtextLabel.translatesAutoresizingMaskIntoConstraints = false
-        cardView.addSubview(subtextLabel)
-        
-        let reportButton = UIButton(type: .system)
-        reportButton.setTitle("Report incident", for: .normal)
-        reportButton.layer.borderWidth = 1
-        reportButton.layer.borderColor = UIColor(red: 166/255, green: 167/255, blue: 220/255, alpha: 1.0).cgColor
-        reportButton.layer.cornerRadius = 5
-        reportButton.setTitleColor(UIColor(red: 166/255, green: 167/255, blue: 220/255, alpha: 1.0), for: .normal)
-        reportButton.translatesAutoresizingMaskIntoConstraints = false
-        cardView.addSubview(reportButton)
-        
-        // Constraints
         NSLayoutConstraint.activate([
             profileImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             profileImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
@@ -142,67 +103,159 @@ class IncidentViewController: UIViewController {
             incidentsView.topAnchor.constraint(equalTo: tabStackView.bottomAnchor),
             incidentsView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             incidentsView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            incidentsView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
+            incidentsView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        
+        switchToTab(index: 0)
+    }
+    
+    func setupTodayView() {
+        // Implement Today View with card views
+        let shiftCard = createCardView(title: "\u{1F551} Shift", subtitle: "Good morning Jeff", details: "Your shift will start in 15 minutes\n8:30 AM - 4:30 PM")
+        let incidentCard = createCardView(title: "\u{1F6A8} Incidents", subtitle: "No new incidents reported by you", details: "")
+        let tasksCard = createCardView(title: "\u{1F4DD} Tasks", subtitle: "Clear out the loading area", details: "+ 4 more tasks")
+        let workingMembersCard = createCardView(title: "\u{1F465} Also working today", subtitle: "", details: "")
+
+        let stackView = UIStackView(arrangedSubviews: [shiftCard, incidentCard, tasksCard, workingMembersCard])
+        stackView.axis = .vertical
+        stackView.spacing = 10
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        todayView.addSubview(stackView)
+
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: todayView.topAnchor, constant: 20),
+            stackView.leadingAnchor.constraint(equalTo: todayView.leadingAnchor, constant: 20),
+            stackView.trailingAnchor.constraint(equalTo: todayView.trailingAnchor, constant: -20)
+        ])
+    }
+    
+    func createCardView(title: String, subtitle: String, details: String) -> UIView {
+        let cardView = UIView()
+        cardView.layer.borderWidth = 1
+        cardView.layer.borderColor = UIColor.lightGray.cgColor
+        cardView.layer.cornerRadius = 10
+        cardView.backgroundColor = .white
+        cardView.translatesAutoresizingMaskIntoConstraints = false
+
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        let subtitleLabel = UILabel()
+        subtitleLabel.text = subtitle
+        subtitleLabel.font = UIFont.boldSystemFont(ofSize: 18)
+        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        let detailsLabel = UILabel()
+        detailsLabel.text = details
+        detailsLabel.font = UIFont.systemFont(ofSize: 14)
+        detailsLabel.textColor = .gray
+        detailsLabel.numberOfLines = 2
+        detailsLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        let stackView = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel, detailsLabel])
+        stackView.axis = .vertical
+        stackView.spacing = 5
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+
+        cardView.addSubview(stackView)
+
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 10),
+            stackView.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 10),
+            stackView.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -10),
+            stackView.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -10)
+        ])
+
+        return cardView
+    }
+    
+    func setupIncidentsView() {
+        // Implement Incidents View content
+        let cardView = UIView()
+    //        cardView.layer.borderColor = UIColor.lightGray.cgColor
+    //        cardView.layer.borderWidth = 1
+    //        cardView.layer.cornerRadius = 10
+        cardView.translatesAutoresizingMaskIntoConstraints = false
+        incidentsView.addSubview(cardView)
+
+        let gearImageView = UIImageView()
+        gearImageView.image = UIImage(named: "gearImage") // Ensure the image is added in assets
+        gearImageView.contentMode = .scaleAspectFit
+        gearImageView.translatesAutoresizingMaskIntoConstraints = false
+        cardView.addSubview(gearImageView)
+
+        let noIncidentsLabel = UILabel()
+        noIncidentsLabel.text = "No incidents reported"
+        noIncidentsLabel.font = UIFont.boldSystemFont(ofSize: 16)
+        noIncidentsLabel.translatesAutoresizingMaskIntoConstraints = false
+        cardView.addSubview(noIncidentsLabel)
+
+        let subtextLabel = UILabel()
+        subtextLabel.text = "No new incidents reported by you"
+        subtextLabel.font = UIFont.systemFont(ofSize: 14)
+        subtextLabel.textColor = .gray
+        subtextLabel.translatesAutoresizingMaskIntoConstraints = false
+        cardView.addSubview(subtextLabel)
+
+        let reportButton = UIButton(type: .system)
+        reportButton.setTitle("Report incident", for: .normal)
+        reportButton.layer.borderWidth = 1
+        reportButton.layer.borderColor = UIColor(red: 166/255, green: 167/255, blue: 220/255, alpha: 1.0).cgColor
+        reportButton.layer.cornerRadius = 5
+        reportButton.setTitleColor(UIColor(red: 166/255, green: 167/255, blue: 220/255, alpha: 1.0), for: .normal)
+        reportButton.translatesAutoresizingMaskIntoConstraints = false
+        cardView.addSubview(reportButton)
+        
+        NSLayoutConstraint.activate([
             cardView.centerXAnchor.constraint(equalTo: incidentsView.centerXAnchor),
             cardView.topAnchor.constraint(equalTo: incidentsView.topAnchor, constant: 40),
             cardView.widthAnchor.constraint(equalToConstant: 311),
             cardView.heightAnchor.constraint(equalToConstant: 348),
-            
+
             gearImageView.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 40),
             gearImageView.centerXAnchor.constraint(equalTo: cardView.centerXAnchor),
             gearImageView.widthAnchor.constraint(equalToConstant: 198),
             gearImageView.heightAnchor.constraint(equalToConstant: 200),
-            
+
             noIncidentsLabel.topAnchor.constraint(equalTo: gearImageView.bottomAnchor, constant: 20),
             noIncidentsLabel.centerXAnchor.constraint(equalTo: cardView.centerXAnchor),
-            
+
             subtextLabel.topAnchor.constraint(equalTo: noIncidentsLabel.bottomAnchor, constant: 5),
             subtextLabel.centerXAnchor.constraint(equalTo: cardView.centerXAnchor),
-            
+
             reportButton.topAnchor.constraint(equalTo: subtextLabel.bottomAnchor, constant: 20),
             reportButton.centerXAnchor.constraint(equalTo: cardView.centerXAnchor),
             reportButton.widthAnchor.constraint(equalToConstant: 150),
             reportButton.heightAnchor.constraint(equalToConstant: 40)
         ])
-        
-        switchToTab(index: 0)
     }
     
     @objc func tabTapped(_ sender: UITapGestureRecognizer) {
         guard let selectedLabel = sender.view as? UILabel else { return }
         switchToTab(index: selectedLabel.tag)
     }
-
-    func switchToTab(index: Int) {
-        // Find tab labels
-        if let tabStackView = view.subviews.compactMap({ $0 as? UIStackView }).first {
-            let tabLabels = tabStackView.arrangedSubviews.compactMap { $0 as? UILabel }
-            
-            UIView.animate(withDuration: 0.3) {
-                self.underlineView.frame.origin.x = index == 0 ? tabLabels[0].frame.origin.x : tabLabels[1].frame.origin.x
-            }
-            
-            for label in tabLabels {
-                if label.tag == index {
-                    label.textColor = .black
-                    label.font = UIFont.boldSystemFont(ofSize: 16)
-                } else {
-                    label.textColor = .gray
-                    label.font = UIFont.systemFont(ofSize: 16)
-                }
-            }
-        }
-
         
-        todayView.isHidden = index != 0  // Hide today content
-        incidentsView.isHidden = index != 1  // Show incidents content only when selected
-
-    }
     @objc func openMenu() {
-            let menuVC = MenuViewController()
-            menuVC.modalPresentationStyle = .overFullScreen
-            present(menuVC, animated: true, completion: nil)
+        let menuVC = MenuViewController()
+        menuVC.modalPresentationStyle = .overFullScreen
+        present(menuVC, animated: true, completion: nil)
+    }
+    
+    func switchToTab(index: Int) {
+        todayView.isHidden = index != 0
+        incidentsView.isHidden = index != 1
+
+        UIView.animate(withDuration: 0.3) {
+            if index == 0 {
+                self.underlineView.frame.origin.x = self.view.frame.width / 2 * 0
+            } else {
+                self.underlineView.frame.origin.x = self.view.frame.width / 2
+            }
         }
+    }
+
 }
+
 
